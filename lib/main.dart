@@ -1,3 +1,4 @@
+import 'package:todonest/views/connexion.dart';
 import 'package:todonest/views/inscription.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -80,6 +81,13 @@ class _MyHomePageState extends State<MyHomePage> {
           // the App.build method, and use it to set our appbar title.
           title: Text(widget.title),
           actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const Connexion()));
+              },
+              child: const Text('Connexion'),
+            ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
