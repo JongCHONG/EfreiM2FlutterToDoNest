@@ -1,18 +1,16 @@
 import 'package:todonest/controller/my_firebase_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:todonest/views/list_task.dart';
 import '../constante.dart';
 
-class Connexion extends StatefulWidget {
-  const Connexion({super.key});
+class ListTask extends StatefulWidget {
+  const ListTask({super.key});
 
   @override
-  State<Connexion> createState() => _ConnexionState();
+  State<StatefulWidget> createState() => _ListTaskState();
 }
 
-class _ConnexionState extends State<Connexion> {
-  TextEditingController email = TextEditingController();
-  TextEditingController password = TextEditingController();
+class _ListTaskState extends State<ListTask> {
+  TextEditingController title = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +26,7 @@ class _ConnexionState extends State<Connexion> {
                 children: [
                   const Center(
                     child: Text(
-                      'Connexion',
+                      'TodoNest',
                       textAlign: TextAlign.center,
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -38,20 +36,9 @@ class _ConnexionState extends State<Connexion> {
                     child: Column(
                       children: [
                         TextField(
-                          controller: email,
+                          controller: title,
                           decoration: InputDecoration(
-                              hintText: 'Entrer votre email',
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10))),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextField(
-                          controller: password,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                              hintText: 'Entrer votre password',
+                              hintText: 'Entrer le title de la tâche',
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10))),
                         ),
@@ -61,16 +48,10 @@ class _ConnexionState extends State<Connexion> {
                         ElevatedButton(
                             onPressed: () {
                               MyFirebaseHelper()
-                                  .connexion(email.text, password.text)
+                                  .addTask(title.text)
                                   .then((value) {
                                 setState(() {
-                                  me = value;
-
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const ListTask()));
+                                  task = value;
                                 });
                               });
                             },
