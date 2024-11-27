@@ -11,8 +11,8 @@ class Connexion extends StatefulWidget {
 }
 
 class _ConnexionState extends State<Connexion> {
-  TextEditingController email = TextEditingController();
-  TextEditingController password = TextEditingController();
+  TextEditingController email = TextEditingController(text: 'jong@test.com');
+  TextEditingController password = TextEditingController(text: 'azerty');
 
   @override
   Widget build(BuildContext context) {
