@@ -1,4 +1,4 @@
-import 'package:todonest/controller/my_firebase_helper.dart';
+import 'package:todonest/controllers/auth.controller.dart';
 import 'package:flutter/material.dart';
 import 'package:todonest/views/list_task.dart';
 import '../constante.dart';
@@ -60,7 +60,7 @@ class _ConnexionState extends State<Connexion> {
                         ),
                         ElevatedButton(
                             onPressed: () {
-                              MyFirebaseHelper()
+                              AuthController()
                                   .connexion(email.text, password.text)
                                   .then((value) {
                                 setState(() {

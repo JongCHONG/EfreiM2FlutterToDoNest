@@ -1,4 +1,4 @@
-import 'package:todonest/controller/my_firebase_helper.dart';
+import 'package:todonest/controllers/auth.controller.dart';
 import 'package:flutter/material.dart';
 import '../constante.dart';
 
@@ -70,7 +70,7 @@ class _InscriptionState extends State<Inscription> {
                         ),
                         ElevatedButton(
                             onPressed: () {
-                              MyFirebaseHelper()
+                              AuthController()
                                   .inscription(
                                       surname.text, email.text, password.text)
                                   .then((value) {
