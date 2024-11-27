@@ -13,6 +13,40 @@ class _ListTaskState extends State<ListTask> {
   TextEditingController title = TextEditingController();
   final MyFirebaseHelper _firebaseHelper = MyFirebaseHelper();
 
+  void _showEditTaskDialog(MyTask task) {
+    TextEditingController edit = TextEditingController(text: task.title);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: const Text("Modifier la tâche"),
+              content: TextField(
+                controller: edit,
+                decoration: const InputDecoration(hintText: "Nouveau titre"),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Annuler"),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    String newTitle = edit.text.trim();
+
+                    if (newTitle.isNotEmpty) {
+                      await _firebaseHelper.updateTask(task.id, newTitle);
+                      setState(() {});
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: const Text("Modifier"),
+                )
+              ]);
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,7 +103,14 @@ class _ListTaskState extends State<ListTask> {
                       itemCount: tasks.length,
                       itemBuilder: (context, index) {
                         final task = tasks[index];
-                        return ListTile(title: Text(task.title));
+                        return ListTile(
+                          title: Text(task.title),
+                          trailing: IconButton(
+                              onPressed: () {
+                                _showEditTaskDialog(task);
+                              },
+                              icon: const Icon(Icons.edit)),
+                        );
                       },
                     );
                   }))
