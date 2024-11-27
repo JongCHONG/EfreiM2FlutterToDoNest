@@ -7,9 +7,28 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:711496257874:android:2a8accdb1cde2572296a8b",
+        "mobilesdk_app_id": "1:711496257874:android:c6d9c38293539927296a8b",
         "android_client_info": {
-          "package_name": "com.todonest"
+          "package_name": "com.example.efrei_m2_flutter_todonest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEu2GrK2ajBsISmdYKV9HmI-iwXwKlxho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:711496257874:android:c69393e6c85d09d3296a8b",
+        "android_client_info": {
+          "package_name": "com.example.todonest"
         }
       },
       "oauth_client": [],
