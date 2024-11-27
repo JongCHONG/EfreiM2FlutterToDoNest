@@ -85,4 +85,15 @@ class MyFirebaseHelper {
       throw e;
     }
   }
+
+  Future<void> updateTask(String taskId, String newTitle) async {
+    try {
+      await cloudTasks
+          .doc(taskId)
+          .update({'title': newTitle, 'updatedAt': Timestamp.now()});
+    } catch (e) {
+      print("erreur lors de la mise à jour de la tâche: $e");
+      throw e;
+    }
+  }
 }
