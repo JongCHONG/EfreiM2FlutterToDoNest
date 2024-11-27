@@ -47,6 +47,34 @@ class _ListTaskState extends State<ListTask> {
         });
   }
 
+  void _showDeleteConfirmationDialog(String taskId) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: const Text("Confirmer la suppression"),
+              content: const Text(
+                  "Êtes-vous sûr de vouloir supprimer cette tâche ?"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Annuler"),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    _firebaseHelper.deleteTask(taskId).then((_) {
+                      setState(() {});
+                    });
+                  },
+                  child: const Text("Supprimer"),
+                )
+              ]);
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,14 +143,9 @@ class _ListTaskState extends State<ListTask> {
                                     icon: const Icon(Icons.edit)),
                                 IconButton(
                                     onPressed: () {
-                                      _firebaseHelper
-                                          .deleteTask(task.id)
-                                          .then((_) {
-                                        setState(() {});
-                                      });
+                                      _showDeleteConfirmationDialog(task.id);
                                     },
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.red))
+                                    icon: const Icon(Icons.delete)),
                               ],
                             ));
                       },
