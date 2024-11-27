@@ -42,12 +42,19 @@ class MyFirebaseHelper {
   }
 
   Future<MyTask> addTask(String title) async {
+    User? currentUser = auth.currentUser;
+
+    if (currentUser == null) {
+      throw Exception("Aucun utilisateur connecté");
+    }
+
     DocumentReference taskRef = cloudTasks.doc();
 
     Map<String, dynamic> taskData = {
       'title': title,
       'completed': false,
       'createdAt': Timestamp.now(),
+      'userId': currentUser.uid
     };
 
     await taskRef.set(taskData);
@@ -57,5 +64,25 @@ class MyFirebaseHelper {
     MyTask newTask = MyTask(newTaskSnapshot);
 
     return newTask;
+  }
+
+  Future<List<MyTask>> getTasksForCurrentUser() async {
+    User? currentUser = auth.currentUser;
+
+    if (currentUser == null) {
+      throw Exception("Aucun utilisateur connecté");
+    }
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('tasks')
+          .where('userId', isEqualTo: currentUser.uid)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return snapshot.docs.map((doc) => MyTask(doc)).toList();
+    } catch (e) {
+      print("erreur lors de la récupération des tâches: $e");
+      throw e;
+    }
   }
 }
