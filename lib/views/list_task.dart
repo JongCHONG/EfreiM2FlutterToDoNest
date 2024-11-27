@@ -1,6 +1,7 @@
-import 'package:todonest/controller/my_firebase_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:todonest/controllers/auth.controller.dart';
 import 'package:todonest/models/my_task.dart';
+import 'package:todonest/services/task.service.dart';
 
 class ListTask extends StatefulWidget {
   const ListTask({super.key});
@@ -11,7 +12,7 @@ class ListTask extends StatefulWidget {
 
 class _ListTaskState extends State<ListTask> {
   TextEditingController title = TextEditingController();
-  final MyFirebaseHelper _firebaseHelper = MyFirebaseHelper();
+  final taskService = TaskService();
 
   void _showEditTaskDialog(MyTask task) {
     TextEditingController edit = TextEditingController(text: task.title);
@@ -36,7 +37,7 @@ class _ListTaskState extends State<ListTask> {
                     String newTitle = edit.text.trim();
 
                     if (newTitle.isNotEmpty) {
-                      await _firebaseHelper.updateTask(task.id, newTitle);
+                      await taskService.updateTask(task.id, newTitle);
                       setState(() {});
                       Navigator.of(context).pop();
                     }
@@ -53,6 +54,12 @@ class _ListTaskState extends State<ListTask> {
       appBar: AppBar(
         title: const Text("TodoNest", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blueGrey,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => AuthController().logout(context),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -70,9 +77,10 @@ class _ListTaskState extends State<ListTask> {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (title.text.isNotEmpty) {
-                        _firebaseHelper.addTask(title.text);
+                        await taskService.addTask(title.text);
+                        setState(() {});
                         title.clear();
                       }
                     },
@@ -82,7 +90,7 @@ class _ListTaskState extends State<ListTask> {
           ),
           Expanded(
               child: FutureBuilder<List<MyTask>>(
-                  future: _firebaseHelper.getTasksForCurrentUser(),
+                  future: taskService.getTasksForCurrentUser(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -115,9 +123,7 @@ class _ListTaskState extends State<ListTask> {
                                     icon: const Icon(Icons.edit)),
                                 IconButton(
                                     onPressed: () {
-                                      _firebaseHelper
-                                          .deleteTask(task.id)
-                                          .then((_) {
+                                      taskService.deleteTask(task.id).then((_) {
                                         setState(() {});
                                       });
                                     },
