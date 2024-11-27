@@ -104,13 +104,27 @@ class _ListTaskState extends State<ListTask> {
                       itemBuilder: (context, index) {
                         final task = tasks[index];
                         return ListTile(
-                          title: Text(task.title),
-                          trailing: IconButton(
-                              onPressed: () {
-                                _showEditTaskDialog(task);
-                              },
-                              icon: const Icon(Icons.edit)),
-                        );
+                            title: Text(task.title),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                    onPressed: () {
+                                      _showEditTaskDialog(task);
+                                    },
+                                    icon: const Icon(Icons.edit)),
+                                IconButton(
+                                    onPressed: () {
+                                      _firebaseHelper
+                                          .deleteTask(task.id)
+                                          .then((_) {
+                                        setState(() {});
+                                      });
+                                    },
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red))
+                              ],
+                            ));
                       },
                     );
                   }))

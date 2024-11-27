@@ -96,4 +96,13 @@ class MyFirebaseHelper {
       throw e;
     }
   }
+
+  Future<void> deleteTask(String taskId) async {
+    try {
+      await FirebaseFirestore.instance.collection('tasks').doc(taskId).delete();
+    } catch (e) {
+      print("Erreur lors de la supression de la tâche : $e");
+      throw e;
+    }
+  }
 }
