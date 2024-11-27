@@ -31,4 +31,11 @@ class MyFirebaseHelper {
     addUser(id, datas);
     return getUser(id);
   }
+
+  Future<MyUser> connexion(String email, String password) async {
+    UserCredential credential =
+        await auth.signInWithEmailAndPassword(email: email, password: password);
+    String id = credential.user!.uid;
+    return getUser(id);
+  }
 }
