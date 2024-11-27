@@ -41,7 +41,6 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -55,7 +54,9 @@ class AuthWrapper extends StatelessWidget {
         } else if (snapshot.hasData) {
           return const ListTask();
         } else {
-          return const MyHomePage(title: "ToDoNest",);
+          return const MyHomePage(
+            title: "ToDoNest",
+          );
         }
       },
     );
@@ -66,28 +67,38 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const Connexion()));
-              },
-              child: const Text('Connexion'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const Inscription()));
-              },
-              child: const Text('Inscription'),
-            ),
-          ]),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+            Image.asset('assets/images/logo.png'),
+            const SizedBox(height: 20),
+            const Text(
+              'Bienvenue sur TodoNest',
+              style: TextStyle(fontSize: 24),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+              TextButton(
+                onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const Connexion()));
+                },
+                child: const Text('Connexion'),
+              ),
+              const SizedBox(width: 20),
+              TextButton(
+                onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const Inscription()));
+                },
+                child: const Text('Inscription'),
+              ),
+              ],
+            ),
+          ],
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
