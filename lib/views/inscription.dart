@@ -1,6 +1,6 @@
 import 'package:todonest/controller/my_firebase_helper.dart';
 import 'package:flutter/material.dart';
-import '../constante.dart';
+import 'package:todonest/constante.dart';
 import 'package:todonest/validator/validators.dart';
 
 class Inscription extends StatefulWidget {

@@ -1,6 +1,7 @@
 import 'package:todonest/controller/my_firebase_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:todonest/models/my_task.dart';
+import 'package:todonest/validator/validators.dart';
 
 class ListTask extends StatefulWidget {
   const ListTask({super.key});
@@ -10,19 +11,35 @@ class ListTask extends StatefulWidget {
 }
 
 class _ListTaskState extends State<ListTask> {
+  final _formKey = GlobalKey<FormState>();
   TextEditingController title = TextEditingController();
   final MyFirebaseHelper _firebaseHelper = MyFirebaseHelper();
 
   void _showEditTaskDialog(MyTask task) {
     TextEditingController edit = TextEditingController(text: task.title);
+    final _formKeyShowEdit = GlobalKey<FormState>();
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
               title: const Text("Modifier la tâche"),
-              content: TextField(
-                controller: edit,
-                decoration: const InputDecoration(hintText: "Nouveau titre"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Form(
+                    key: _formKeyShowEdit,
+                    child: TextFormField(
+                      controller: edit,
+                      decoration: InputDecoration(
+                        hintText: 'Nouveau titre',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      validator: validateTask,
+                    ),
+                  ),
+                ],
               ),
               actions: [
                 TextButton(
@@ -33,9 +50,8 @@ class _ListTaskState extends State<ListTask> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    String newTitle = edit.text.trim();
-
-                    if (newTitle.isNotEmpty) {
+                    if (_formKeyShowEdit.currentState?.validate() ?? false) {
+                      String newTitle = edit.text.trim();
                       await _firebaseHelper.updateTask(task.id, newTitle);
                       setState(() {});
                       Navigator.of(context).pop();
@@ -89,22 +105,34 @@ class _ListTaskState extends State<ListTask> {
             padding: const EdgeInsets.all(10),
             child: Column(
               children: [
-                TextField(
-                  controller: title,
-                  decoration: InputDecoration(
-                      hintText: 'Entrer le titre de la tâche',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10))),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: title,
+                        decoration: InputDecoration(
+                          hintText: 'Entrer le titre de la tâche',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        validator: validateTask,
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              if (title.text.isNotEmpty) {
+                                _firebaseHelper.addTask(title.text);
+                                title.clear();
+                              }
+                            }
+                          },
+                          child: const Text('Envoyer')),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                    onPressed: () {
-                      if (title.text.isNotEmpty) {
-                        _firebaseHelper.addTask(title.text);
-                        title.clear();
-                      }
-                    },
-                    child: const Text('Envoyer')),
               ],
             ),
           ),

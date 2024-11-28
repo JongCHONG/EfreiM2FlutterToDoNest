@@ -17,6 +17,10 @@ String? validateSurname(String? value) {
     return 'Veuillez entrer votre nom';
   }
 
+  if (value.length < 3) {
+    return 'Votre nom doit contenir au moins 3 caractères';
+  }
+
   return null;
 }
 
@@ -27,6 +31,17 @@ String? validatePassword(String? value) {
 
   if (value.length < 6) {
     return 'Le mot de passe doit contenir au moins 6 caractères';
+  }
+  return null;
+}
+
+String? validateTask(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'Veuillez entrer une tâche';
+  }
+
+  if (value.length < 4) {
+    return 'la tâche doit contenir au moins 4 caractères';
   }
   return null;
 }

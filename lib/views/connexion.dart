@@ -1,7 +1,8 @@
 import 'package:todonest/controller/my_firebase_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:todonest/views/list_task.dart';
-import '../constante.dart';
+import 'package:todonest/constante.dart';
+import 'package:todonest/validator/validators.dart';
 
 class Connexion extends StatefulWidget {
   const Connexion({super.key});
@@ -11,6 +12,7 @@ class Connexion extends StatefulWidget {
 }
 
 class _ConnexionState extends State<Connexion> {
+  final _formKey = GlobalKey<FormState>();
   TextEditingController email = TextEditingController(text: 'jong@test.com');
   TextEditingController password = TextEditingController(text: 'azerty');
 
@@ -35,44 +37,53 @@ class _ConnexionState extends State<Connexion> {
                     ),
                   ),
                   Form(
+                    key: _formKey,
                     child: Column(
                       children: [
-                        TextField(
+                        TextFormField(
                           controller: email,
                           decoration: InputDecoration(
-                              hintText: 'Entrer votre email',
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10))),
+                            hintText: 'Entrer votre email',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          validator: validateEmail,
                         ),
                         const SizedBox(
                           height: 10,
                         ),
-                        TextField(
+                        TextFormField(
                           controller: password,
                           obscureText: true,
                           decoration: InputDecoration(
-                              hintText: 'Entrer votre password',
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10))),
+                            hintText: 'Entrer votre password',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          validator: validatePassword,
                         ),
                         const SizedBox(
                           height: 10,
                         ),
                         ElevatedButton(
                             onPressed: () {
-                              MyFirebaseHelper()
-                                  .connexion(email.text, password.text)
-                                  .then((value) {
-                                setState(() {
-                                  me = value;
+                              if (_formKey.currentState?.validate() ?? false) {
+                                MyFirebaseHelper()
+                                    .connexion(email.text, password.text)
+                                    .then((value) {
+                                  setState(() {
+                                    me = value;
 
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const ListTask()));
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const ListTask()));
+                                  });
                                 });
-                              });
+                              }
                             },
                             child: const Text('Envoyer'))
                       ],
