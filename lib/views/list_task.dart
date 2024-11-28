@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:todonest/controllers/auth.controller.dart';
 import 'package:todonest/models/my_task.dart';
 import 'package:todonest/services/task.service.dart';
+import 'package:todonest/widgets/dialog.dart';
 
 class ListTask extends StatefulWidget {
   const ListTask({super.key});
@@ -13,68 +14,6 @@ class ListTask extends StatefulWidget {
 class _ListTaskState extends State<ListTask> {
   TextEditingController title = TextEditingController();
   final taskService = TaskService();
-
-  void _showEditTaskDialog(MyTask task) {
-    TextEditingController edit = TextEditingController(text: task.title);
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              title: const Text("Modifier la tâche"),
-              content: TextField(
-                controller: edit,
-                decoration: const InputDecoration(hintText: "Nouveau titre"),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("Annuler"),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    String newTitle = edit.text.trim();
-
-                    if (newTitle.isNotEmpty) {
-                      await taskService.updateTask(task.id, newTitle);
-                      setState(() {});
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text("Modifier"),
-                )
-              ]);
-        });
-  }
-
-  void _showDeleteConfirmationDialog(String taskId) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              title: const Text("Confirmer la suppression"),
-              content: const Text(
-                  "Êtes-vous sûr de vouloir supprimer cette tâche ?"),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("Annuler"),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                    taskService.deleteTask(taskId).then((_) {
-                      setState(() {});
-                    });
-                  },
-                  child: const Text("Supprimer"),
-                )
-              ]);
-        });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,13 +85,15 @@ class _ListTaskState extends State<ListTask> {
                               children: [
                                 IconButton(
                                     onPressed: () {
-                                      _showEditTaskDialog(task);
-                                    },
+                                      showEditTaskDialog(context, task, taskService, () {
+                                        setState(() {});
+                                      });                                    },
                                     icon: const Icon(Icons.edit)),
                                 IconButton(
                                     onPressed: () {
-                                      _showDeleteConfirmationDialog(task.id);
-                                    },
+                                      showDeleteConfirmationDialog(context, task.id, taskService, () {
+                                        setState(() {});
+                                      });                                    },
                                     icon: const Icon(Icons.delete)),
                               ],
                             ));

@@ -1,8 +1,7 @@
-import 'package:todonest/views/connexion.dart';
-import 'package:todonest/views/inscription.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:todonest/widgets/dialog.dart';
 import 'firebase_options.dart';
 import 'package:todonest/views/list_task.dart';
 
@@ -70,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+          children: [
             Image.asset('assets/images/logo.png'),
             const SizedBox(height: 20),
             const Text(
@@ -81,21 +80,19 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-              TextButton(
-                onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const Connexion()));
-                },
-                child: const Text('Connexion'),
-              ),
-              const SizedBox(width: 20),
-              TextButton(
-                onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const Inscription()));
-                },
-                child: const Text('Inscription'),
-              ),
+                TextButton(
+                  onPressed: () {
+                    showConnexionDialog(context);
+                  },
+                  child: const Text('Connexion'),
+                ),
+                const SizedBox(width: 20),
+                TextButton(
+                  onPressed: () {
+                    showInscriptionDialog(context);
+                  },
+                  child: const Text('Inscription'),
+                ),
               ],
             ),
           ],
