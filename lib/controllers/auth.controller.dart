@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:todonest/main.dart';
 import 'package:todonest/services/user.service.dart';
 import 'dart:async';
+import 'package:todonest/notifications/notifications.dart';
 
 import '../models/my_user.dart';
 
@@ -15,7 +16,8 @@ class AuthController {
   final int maxLoginAttempts = 3;
   final int blockDuration = 60;
 
-  Future<MyUser> register(String surname, String email, String password) async {
+  Future<MyUser> register(String surname, String email, String password,
+      BuildContext context) async {
     UserCredential credential = await auth.createUserWithEmailAndPassword(
         email: email, password: password);
     String id = credential.user!.uid;
@@ -29,6 +31,9 @@ class AuthController {
       'blockUntil': null,
     };
     UserService().addUser(id, datas);
+
+    Notifications.show(context, 'Inscription réussie !');
+
     return UserService().getUser(id);
   }
 

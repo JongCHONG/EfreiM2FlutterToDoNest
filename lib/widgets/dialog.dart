@@ -238,7 +238,8 @@ void showInscriptionDialog(BuildContext context) {
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     AuthController()
-                        .register(surname.text, email.text, password.text)
+                        .register(
+                            surname.text, email.text, password.text, context)
                         .then((value) {
                       Navigator.of(context).pop();
                       Navigator.push(
@@ -268,7 +269,8 @@ void showInscriptionDialog(BuildContext context) {
   );
 }
 
-void showCreateTaskDialog(BuildContext context, TaskService taskService, Function onCreate) {
+void showCreateTaskDialog(
+    BuildContext context, TaskService taskService, Function onCreate) {
   final _formKey = GlobalKey<FormState>();
   TextEditingController title = TextEditingController();
 
