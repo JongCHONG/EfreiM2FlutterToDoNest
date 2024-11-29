@@ -5,7 +5,6 @@ import 'package:todonest/models/my_user.dart';
 import 'package:todonest/services/task.service.dart';
 import 'package:todonest/services/user.service.dart';
 import 'package:todonest/widgets/dialog.dart';
-import 'package:todonest/validator/validators.dart';
 
 class ListTask extends StatefulWidget {
   String userId;
@@ -17,7 +16,6 @@ class ListTask extends StatefulWidget {
 }
 
 class _ListTaskState extends State<ListTask> {
-  final _formKey = GlobalKey<FormState>();
   TextEditingController title = TextEditingController();
   final taskService = TaskService();
   final userService = UserService();
@@ -32,7 +30,7 @@ class _ListTaskState extends State<ListTask> {
 
   Future<void> _loadUserName() async {
     try {
-       user = await userService.getUser(widget.userId);
+      user = await userService.getUser(widget.userId);
       setState(() {
         userName = user.surname;
       });
@@ -45,9 +43,18 @@ class _ListTaskState extends State<ListTask> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Bienvenue, $userName", style: const TextStyle(color: Colors.white)),
-        backgroundColor: Colors.blueGrey,
+        title: Text("Bienvenue, $userName",
+            style: const TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
         actions: [
+          ElevatedButton(
+            onPressed: () {
+              showCreateTaskDialog(context, taskService, () {
+                setState(() {});
+              });
+            },
+            child: const Icon(Icons.add),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => AuthController().logout(context),
@@ -56,45 +63,6 @@ class _ListTaskState extends State<ListTask> {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              children: [
-                Column(
-                  children: [
-                    Form(
-                      key: _formKey,
-                      child: Column(children: [
-                        TextFormField(
-                          controller: title,
-                          decoration: InputDecoration(
-                            hintText: 'Entrer le titre de la tâche',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          validator: validateTask,
-                        ),
-                      ]),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        if (title.text.isNotEmpty) {
-                          await taskService.addTask(title.text);
-                          setState(() {});
-                          title.clear();
-                        }
-                      }
-                    },
-                    child: const Text('Envoyer')),
-              ],
-            ),
-          ),
           Expanded(
               child: FutureBuilder<List<MyTask>>(
                   future: taskService.getTasksForCurrentUser(),
