@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:todonest/widgets/dialog.dart';
 import 'firebase_options.dart';
-import 'package:todonest/views/list_task.dart';
+import 'package:todonest/views/dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +51,7 @@ class AuthWrapper extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else if (snapshot.hasData) {
-          return const ListTask();
+          return ListTask(userId: snapshot.data!.uid);
         } else {
           return const MyHomePage(
             title: "ToDoNest",
@@ -82,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 TextButton(
                   onPressed: () {
-                    showConnexionDialog(context);
+                    showLoginDialog(context);
                   },
                   child: const Text('Connexion'),
                 ),

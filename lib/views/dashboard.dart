@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:todonest/controllers/auth.controller.dart';
 import 'package:todonest/models/my_task.dart';
+import 'package:todonest/models/my_user.dart';
 import 'package:todonest/services/task.service.dart';
+import 'package:todonest/services/user.service.dart';
 import 'package:todonest/widgets/dialog.dart';
 import 'package:todonest/validator/validators.dart';
 
 class ListTask extends StatefulWidget {
-  const ListTask({super.key});
+  String userId;
+
+  ListTask({super.key, required this.userId});
 
   @override
   State<StatefulWidget> createState() => _ListTaskState();
@@ -16,12 +20,32 @@ class _ListTaskState extends State<ListTask> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController title = TextEditingController();
   final taskService = TaskService();
+  final userService = UserService();
+  late MyUser user;
+  String userName = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    try {
+       user = await userService.getUser(widget.userId);
+      setState(() {
+        userName = user.surname;
+      });
+    } catch (e) {
+      print("Erreur lors de la récupération du nom de l'utilisateur: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("TodoNest", style: TextStyle(color: Colors.white)),
+        title: Text("Bienvenue, $userName", style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.blueGrey,
         actions: [
           IconButton(
@@ -96,6 +120,16 @@ class _ListTaskState extends State<ListTask> {
                         final task = tasks[index];
                         return ListTile(
                             title: Text(task.title),
+                            leading: Checkbox(
+                              value: task.completed,
+                              onChanged: (bool? value) async {
+                                if (value != null) {
+                                  await taskService.updateTask(
+                                      task.id, {'completed': value});
+                                  setState(() {});
+                                }
+                              },
+                            ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [

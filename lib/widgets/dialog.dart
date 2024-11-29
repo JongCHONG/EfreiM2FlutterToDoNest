@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:todonest/controllers/auth.controller.dart';
 import 'package:todonest/models/my_task.dart';
 import 'package:todonest/services/task.service.dart';
-import 'package:todonest/views/list_task.dart';
 import 'package:todonest/validator/validators.dart';
+import 'package:todonest/views/dashboard.dart';
 
 void showEditTaskDialog(BuildContext context, MyTask task,
     TaskService taskService, Function onUpdate) {
   TextEditingController edit = TextEditingController(text: task.title);
 
-  final _formKeyShowEdit = GlobalKey<FormState>();
+  final formKeyShowEdit = GlobalKey<FormState>();
 
   showDialog(
     context: context,
@@ -20,7 +20,7 @@ void showEditTaskDialog(BuildContext context, MyTask task,
           mainAxisSize: MainAxisSize.min,
           children: [
             Form(
-              key: _formKeyShowEdit,
+              key: formKeyShowEdit,
               child: TextFormField(
                 controller: edit,
                 decoration: InputDecoration(
@@ -43,9 +43,9 @@ void showEditTaskDialog(BuildContext context, MyTask task,
           ),
           ElevatedButton(
             onPressed: () async {
-              if (_formKeyShowEdit.currentState?.validate() ?? false) {
+              if (formKeyShowEdit.currentState?.validate() ?? false) {
                 String newTitle = edit.text.trim();
-                await taskService.updateTask(task.id, newTitle);
+                await taskService.updateTask(task.id, {'title': newTitle});
                 onUpdate();
                 Navigator.of(context).pop();
               }
@@ -87,8 +87,8 @@ void showDeleteConfirmationDialog(BuildContext context, String taskId,
   );
 }
 
-void showConnexionDialog(BuildContext context) {
-  final _formKey = GlobalKey<FormState>();
+void showLoginDialog(BuildContext context) {
+  final formKey = GlobalKey<FormState>();
 
   TextEditingController email = TextEditingController(text: 'jong@test.com');
   TextEditingController password = TextEditingController(text: 'azerty');
@@ -102,7 +102,7 @@ void showConnexionDialog(BuildContext context) {
           child: Column(
             children: [
               Form(
-                  key: _formKey,
+                  key: formKey,
                   child: Column(
                     children: [
                       TextFormField(
@@ -132,7 +132,7 @@ void showConnexionDialog(BuildContext context) {
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
+                  if (formKey.currentState?.validate() ?? false) {
                     AuthController()
                         .connexion(email.text, password.text)
                         .then((value) {
@@ -140,7 +140,7 @@ void showConnexionDialog(BuildContext context) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ListTask(),
+                          builder: (context) => ListTask(userId: value.uid),
                         ),
                       );
                     });
@@ -230,7 +230,7 @@ void showInscriptionDialog(BuildContext context) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ListTask(),
+                          builder: (context) => ListTask(userId: value.uid),
                         ),
                       );
                     });
