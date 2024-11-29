@@ -45,7 +45,8 @@ void showEditTaskDialog(BuildContext context, MyTask task,
             onPressed: () async {
               if (formKeyShowEdit.currentState?.validate() ?? false) {
                 String newTitle = edit.text.trim();
-                await taskService.updateTask(task.id, {'title': newTitle});
+                await taskService.updateTask(
+                    task.id, {'title': newTitle}, context);
                 onUpdate();
                 Navigator.of(context).pop();
               }
@@ -76,7 +77,7 @@ void showDeleteConfirmationDialog(BuildContext context, String taskId,
           ElevatedButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              await taskService.deleteTask(taskId);
+              await taskService.deleteTask(taskId, context);
               onDelete();
             },
             child: const Text("Supprimer"),
@@ -134,10 +135,10 @@ void showLoginDialog(BuildContext context) {
                 onPressed: () {
                   if (formKey.currentState?.validate() ?? false) {
                     AuthController()
-                        .connection(email.text, password.text)
+                        .connection(email.text, password.text, context)
                         .then((value) {
                       Navigator.of(context).pop();
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ListTask(userId: value.uid),
@@ -308,7 +309,7 @@ void showCreateTaskDialog(
             onPressed: () async {
               if (_formKey.currentState?.validate() ?? false) {
                 if (title.text.isNotEmpty) {
-                  await taskService.addTask(title.text);
+                  await taskService.addTask(title.text, context);
                   onCreate();
                   Navigator.of(context).pop();
                 }

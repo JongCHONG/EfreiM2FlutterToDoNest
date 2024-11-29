@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:todonest/notifications/notifications.dart';
 
 import '../models/my_task.dart';
 
@@ -8,7 +9,7 @@ class TaskService {
       FirebaseFirestore.instance.collection('tasks');
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  Future<MyTask> addTask(String title) async {
+  Future<MyTask> addTask(String title, context) async {
     User? currentUser = auth.currentUser;
 
     if (currentUser == null) {
@@ -29,6 +30,8 @@ class TaskService {
     DocumentSnapshot newTaskSnapshot = await taskRef.get();
 
     MyTask newTask = MyTask(newTaskSnapshot);
+
+    Notifications.show(context, 'Ajouté avec succès !');
 
     return newTask;
   }
@@ -53,9 +56,11 @@ class TaskService {
     }
   }
 
-  Future<void> updateTask(String taskId, Map<String, dynamic> updates) async {
+  Future<void> updateTask(
+      String taskId, Map<String, dynamic> updates, context) async {
     try {
       updates['updatedAt'] = Timestamp.now();
+      Notifications.show(context, 'Mise à jour avec succès !');
       await cloudTasks.doc(taskId).update(updates);
     } catch (e) {
       print("erreur lors de la mise à jour de la tâche: $e");
@@ -63,9 +68,10 @@ class TaskService {
     }
   }
 
-  Future<void> deleteTask(String taskId) async {
+  Future<void> deleteTask(String taskId, context) async {
     try {
       await FirebaseFirestore.instance.collection('tasks').doc(taskId).delete();
+      Notifications.show(context, 'Supprimé avec succès !');
     } catch (e) {
       print("Erreur lors de la supression de la tâche : $e");
       throw e;

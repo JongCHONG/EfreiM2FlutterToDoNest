@@ -37,7 +37,8 @@ class AuthController {
     return UserService().getUser(id);
   }
 
-  Future<MyUser> connection(String email, String password) async {
+  Future<MyUser> connection(
+      String email, String password, BuildContext context) async {
     try {
       QuerySnapshot querySnapshot =
           await cloudUsers.where('email', isEqualTo: email).get();
@@ -52,6 +53,10 @@ class AuthController {
       if (user.isBlocked) {
         if (user.blockUntil != null &&
             DateTime.now().isBefore(user.blockUntil!)) {
+          Notifications.show(
+            context,
+            'Votre compte est bloqué jusqu\'à ${user.blockUntil}',
+          );
           throw ('Votre compte est bloqué jusqu\'à ${user.blockUntil}');
         } else {
           await cloudUsers.doc(user.uid).update({
@@ -79,6 +84,8 @@ class AuthController {
 
       UserCredential credential = await auth.signInWithEmailAndPassword(
           email: email, password: password);
+
+      Notifications.show(context, 'Connexion réussie !');
 
       await cloudUsers.doc(user.uid).update({
         'loginAttempts': 0,
@@ -112,5 +119,7 @@ class AuthController {
               )),
       (Route<dynamic> route) => false,
     );
+
+    Notifications.show(context, 'Déconnexion réussi !');
   }
 }

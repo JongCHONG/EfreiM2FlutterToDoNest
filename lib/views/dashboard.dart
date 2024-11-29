@@ -93,7 +93,7 @@ class _ListTaskState extends State<ListTask> {
                               onChanged: (bool? value) async {
                                 if (value != null) {
                                   await taskService.updateTask(
-                                      task.id, {'completed': value});
+                                      task.id, {'completed': value}, context);
                                   setState(() {});
                                 }
                               },
