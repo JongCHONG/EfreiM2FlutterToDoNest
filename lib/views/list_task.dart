@@ -3,6 +3,7 @@ import 'package:todonest/controllers/auth.controller.dart';
 import 'package:todonest/models/my_task.dart';
 import 'package:todonest/services/task.service.dart';
 import 'package:todonest/widgets/dialog.dart';
+import 'package:todonest/validator/validators.dart';
 
 class ListTask extends StatefulWidget {
   const ListTask({super.key});
@@ -12,6 +13,7 @@ class ListTask extends StatefulWidget {
 }
 
 class _ListTaskState extends State<ListTask> {
+  final _formKey = GlobalKey<FormState>();
   TextEditingController title = TextEditingController();
   final taskService = TaskService();
 
@@ -35,20 +37,34 @@ class _ListTaskState extends State<ListTask> {
             padding: const EdgeInsets.all(10),
             child: Column(
               children: [
-                TextField(
-                  controller: title,
-                  decoration: InputDecoration(
-                      hintText: 'Entrer le titre de la tâche',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10))),
+                Column(
+                  children: [
+                    Form(
+                      key: _formKey,
+                      child: Column(children: [
+                        TextFormField(
+                          controller: title,
+                          decoration: InputDecoration(
+                            hintText: 'Entrer le titre de la tâche',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          validator: validateTask,
+                        ),
+                      ]),
+                    )
+                  ],
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
                     onPressed: () async {
-                      if (title.text.isNotEmpty) {
-                        await taskService.addTask(title.text);
-                        setState(() {});
-                        title.clear();
+                      if (_formKey.currentState?.validate() ?? false) {
+                        if (title.text.isNotEmpty) {
+                          await taskService.addTask(title.text);
+                          setState(() {});
+                          title.clear();
+                        }
                       }
                     },
                     child: const Text('Envoyer')),
@@ -85,15 +101,19 @@ class _ListTaskState extends State<ListTask> {
                               children: [
                                 IconButton(
                                     onPressed: () {
-                                      showEditTaskDialog(context, task, taskService, () {
+                                      showEditTaskDialog(
+                                          context, task, taskService, () {
                                         setState(() {});
-                                      });                                    },
+                                      });
+                                    },
                                     icon: const Icon(Icons.edit)),
                                 IconButton(
                                     onPressed: () {
-                                      showDeleteConfirmationDialog(context, task.id, taskService, () {
+                                      showDeleteConfirmationDialog(
+                                          context, task.id, taskService, () {
                                         setState(() {});
-                                      });                                    },
+                                      });
+                                    },
                                     icon: const Icon(Icons.delete)),
                               ],
                             ));
