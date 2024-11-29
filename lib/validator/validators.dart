@@ -32,6 +32,22 @@ String? validatePassword(String? value) {
   if (value.length < 6) {
     return 'Le mot de passe doit contenir au moins 6 caractères';
   }
+
+  return null;
+}
+
+String? validateEqualsPassword(String? password, String? confirmPassword) {
+  if (confirmPassword == null || confirmPassword.isEmpty) {
+    return 'Veuillez confirmer votre mot de passe';
+  }
+
+  if (confirmPassword.length < 6) {
+    return 'Le mot de passe de confirmation doit contenir au moins 6 caractères';
+  }
+
+  if (password != confirmPassword) {
+    return 'Les mots de passe ne correspond pas';
+  }
   return null;
 }
 
