@@ -267,3 +267,55 @@ void showInscriptionDialog(BuildContext context) {
     },
   );
 }
+
+void showCreateTaskDialog(BuildContext context, TaskService taskService, Function onCreate) {
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController title = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Créer une tâche"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Form(
+              key: _formKey,
+              child: TextFormField(
+                controller: title,
+                decoration: InputDecoration(
+                  hintText: 'Entrer le titre de la tâche',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                validator: validateTask,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("Annuler"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (_formKey.currentState?.validate() ?? false) {
+                if (title.text.isNotEmpty) {
+                  await taskService.addTask(title.text);
+                  onCreate();
+                  Navigator.of(context).pop();
+                }
+              }
+            },
+            child: const Text("Créer"),
+          )
+        ],
+      );
+    },
+  );
+}
