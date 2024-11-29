@@ -13,7 +13,7 @@ class AuthController {
   final auth = FirebaseAuth.instance;
 
   final int maxLoginAttempts = 3;
-  final int blockDuration = 60;
+  final int blockDuration = 5;
 
   Future<MyUser> register(String surname, String email, String password) async {
     UserCredential credential = await auth.createUserWithEmailAndPassword(
@@ -44,7 +44,6 @@ class AuthController {
       DocumentSnapshot userDoc = querySnapshot.docs.first;
       MyUser user = MyUser(userDoc);
 
-      if (user.isBlocked) {
         if (user.blockUntil != null &&
             DateTime.now().isBefore(user.blockUntil!)) {
           throw ('Votre compte est bloqué jusqu\'à ${user.blockUntil}');
@@ -55,7 +54,7 @@ class AuthController {
             'loginAttempts': 0,
           });
         }
-      }
+    
 
       int attempts = user.loginAttempts;
 
