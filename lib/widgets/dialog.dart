@@ -170,6 +170,7 @@ void showInscriptionDialog(BuildContext context) {
   TextEditingController surname = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
+  TextEditingController confirmPassword = TextEditingController();
 
   showDialog(
     context: context,
@@ -209,12 +210,25 @@ void showInscriptionDialog(BuildContext context) {
                       controller: password,
                       obscureText: true,
                       decoration: InputDecoration(
-                        hintText: 'Entrer votre password',
+                        hintText: 'Entrer votre mot de passe',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       validator: validatePassword,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: confirmPassword,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: 'Entrer votre mot de passe de confirmation',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      validator: (value) =>
+                          validateEqualsPassword(password.text, value),
                     ),
                   ],
                 ),
