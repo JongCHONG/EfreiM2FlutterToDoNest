@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:todonest/controllers/auth.controller.dart';
 import 'package:todonest/models/my_task.dart';
 import 'package:todonest/services/task.service.dart';
-import 'package:todonest/views/list_task.dart';
+import 'package:todonest/views/dashboard.dart';
 
 void showEditTaskDialog(BuildContext context, MyTask task,
     TaskService taskService, Function onUpdate) {
@@ -26,9 +26,8 @@ void showEditTaskDialog(BuildContext context, MyTask task,
           ElevatedButton(
             onPressed: () async {
               String newTitle = edit.text.trim();
-
               if (newTitle.isNotEmpty) {
-                await taskService.updateTask(task.id, newTitle);
+                await taskService.updateTask(task.id, {'title': newTitle});
                 onUpdate();
                 Navigator.of(context).pop();
               }
@@ -70,7 +69,7 @@ void showDeleteConfirmationDialog(BuildContext context, String taskId,
   );
 }
 
-void showConnexionDialog(BuildContext context) {
+void showLoginDialog(BuildContext context) {
   TextEditingController email = TextEditingController(text: 'jong@test.com');
   TextEditingController password = TextEditingController(text: 'azerty');
 
@@ -108,7 +107,7 @@ void showConnexionDialog(BuildContext context) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ListTask(),
+                        builder: (context) => ListTask(userId: value.uid),
                       ),
                     );
                   });
@@ -178,7 +177,7 @@ void showInscriptionDialog(BuildContext context) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ListTask(),
+                        builder: (context) => ListTask(userId: value.uid),
                       ),
                     );
                   });

@@ -53,11 +53,10 @@ class TaskService {
     }
   }
 
-  Future<void> updateTask(String taskId, String newTitle) async {
+  Future<void> updateTask(String taskId, Map<String, dynamic> updates) async {
     try {
-      await cloudTasks
-          .doc(taskId)
-          .update({'title': newTitle, 'updatedAt': Timestamp.now()});
+      updates['updatedAt'] = Timestamp.now();
+      await cloudTasks.doc(taskId).update(updates);
     } catch (e) {
       print("erreur lors de la mise à jour de la tâche: $e");
       throw e;
