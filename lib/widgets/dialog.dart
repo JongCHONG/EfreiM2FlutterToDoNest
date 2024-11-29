@@ -2,19 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:todonest/controllers/auth.controller.dart';
 import 'package:todonest/models/my_task.dart';
 import 'package:todonest/services/task.service.dart';
+import 'package:todonest/validator/validators.dart';
 import 'package:todonest/views/dashboard.dart';
 
 void showEditTaskDialog(BuildContext context, MyTask task,
     TaskService taskService, Function onUpdate) {
   TextEditingController edit = TextEditingController(text: task.title);
+
+  final formKeyShowEdit = GlobalKey<FormState>();
+
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
         title: const Text("Modifier la tâche"),
-        content: TextField(
-          controller: edit,
-          decoration: const InputDecoration(hintText: "Nouveau titre"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Form(
+              key: formKeyShowEdit,
+              child: TextFormField(
+                controller: edit,
+                decoration: InputDecoration(
+                  hintText: "Nouveau titre",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                validator: validateTask,
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -25,8 +43,8 @@ void showEditTaskDialog(BuildContext context, MyTask task,
           ),
           ElevatedButton(
             onPressed: () async {
-              String newTitle = edit.text.trim();
-              if (newTitle.isNotEmpty) {
+              if (formKeyShowEdit.currentState?.validate() ?? false) {
+                String newTitle = edit.text.trim();
                 await taskService.updateTask(task.id, {'title': newTitle});
                 onUpdate();
                 Navigator.of(context).pop();
@@ -70,6 +88,8 @@ void showDeleteConfirmationDialog(BuildContext context, String taskId,
 }
 
 void showLoginDialog(BuildContext context) {
+  final formKey = GlobalKey<FormState>();
+
   TextEditingController email = TextEditingController(text: 'jong@test.com');
   TextEditingController password = TextEditingController(text: 'azerty');
 
@@ -81,36 +101,50 @@ void showLoginDialog(BuildContext context) {
         content: SingleChildScrollView(
           child: Column(
             children: [
-              TextField(
-                controller: email,
-                decoration: InputDecoration(
-                    hintText: 'Entrer votre email',
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10))),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: password,
-                obscureText: true,
-                decoration: InputDecoration(
-                    hintText: 'Entrer votre password',
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10))),
-              ),
+              Form(
+                  key: formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: email,
+                        decoration: InputDecoration(
+                          hintText: 'Entrer votre email',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        validator: validateEmail,
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: password,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          hintText: 'Entrer votre password',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        validator: validatePassword,
+                      ),
+                    ],
+                  )),
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-                  AuthController()
-                      .connexion(email.text, password.text)
-                      .then((value) {
-                    Navigator.of(context).pop();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ListTask(userId: value.uid),
-                      ),
-                    );
-                  });
+                  if (formKey.currentState?.validate() ?? false) {
+                    AuthController()
+                        .connexion(email.text, password.text)
+                        .then((value) {
+                      Navigator.of(context).pop();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ListTask(userId: value.uid),
+                        ),
+                      );
+                    });
+                  }
                 },
                 child: const Text('Envoyer'),
               ),
@@ -131,6 +165,8 @@ void showLoginDialog(BuildContext context) {
 }
 
 void showInscriptionDialog(BuildContext context) {
+  final _formKey = GlobalKey<FormState>();
+
   TextEditingController surname = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
@@ -143,44 +179,62 @@ void showInscriptionDialog(BuildContext context) {
         content: SingleChildScrollView(
           child: Column(
             children: [
-              TextField(
-                controller: surname,
-                decoration: InputDecoration(
-                    hintText: 'Entrer votre surnom',
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10))),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: email,
-                decoration: InputDecoration(
-                    hintText: 'Entrer votre email',
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10))),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: password,
-                obscureText: true,
-                decoration: InputDecoration(
-                    hintText: 'Entrer votre password',
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10))),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: surname,
+                      decoration: InputDecoration(
+                        hintText: 'Entrer votre surnom',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      validator: validateSurname,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: email,
+                      decoration: InputDecoration(
+                        hintText: 'Entrer votre email',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      validator: validateEmail,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: password,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: 'Entrer votre password',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      validator: validatePassword,
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-                  AuthController()
-                      .inscription(surname.text, email.text, password.text)
-                      .then((value) {
-                    Navigator.of(context).pop();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ListTask(userId: value.uid),
-                      ),
-                    );
-                  });
+                  if (_formKey.currentState?.validate() ?? false) {
+                    AuthController()
+                        .inscription(surname.text, email.text, password.text)
+                        .then((value) {
+                      Navigator.of(context).pop();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ListTask(userId: value.uid),
+                        ),
+                      );
+                    });
+                  }
                 },
                 child: const Text('Envoyer'),
               ),
