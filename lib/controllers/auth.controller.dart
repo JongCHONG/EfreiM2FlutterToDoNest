@@ -12,8 +12,10 @@ class AuthController {
   final cloudTasks = FirebaseFirestore.instance.collection('tasks');
   final auth = FirebaseAuth.instance;
 
-  Future<MyUser> inscription(
-      String surname, String email, String password) async {
+  final int maxLoginAttempts = 3;
+  final int blockDuration = 60;
+
+  Future<MyUser> register(String surname, String email, String password) async {
     UserCredential credential = await auth.createUserWithEmailAndPassword(
         email: email, password: password);
     String id = credential.user!.uid;
@@ -21,23 +23,88 @@ class AuthController {
       'surname': surname,
       'email': email,
       'createdAt': Timestamp.now(),
-      'uid': id
+      'uid': id,
+      'loginAttempts': 0,
+      'isBlocked': false,
+      'blockUntil': null,
     };
     UserService().addUser(id, datas);
     return UserService().getUser(id);
   }
 
-  Future<MyUser> connexion(String email, String password) async {
-    UserCredential credential =
-        await auth.signInWithEmailAndPassword(email: email, password: password);
-    String id = credential.user!.uid;
-    return UserService().getUser(id);
+  Future<MyUser> connection(String email, String password) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await cloudUsers.where('email', isEqualTo: email).get();
+
+      if (querySnapshot.docs.isEmpty) {
+        throw ('Utilisateur non trouvé');
+      }
+
+      DocumentSnapshot userDoc = querySnapshot.docs.first;
+      MyUser user = MyUser(userDoc);
+
+      if (user.isBlocked) {
+        if (user.blockUntil != null &&
+            DateTime.now().isBefore(user.blockUntil!)) {
+          throw ('Votre compte est bloqué jusqu\'à ${user.blockUntil}');
+        } else {
+          await cloudUsers.doc(user.uid).update({
+            'isBlocked': false,
+            'blockUntil': null,
+            'loginAttempts': 0,
+          });
+        }
+      }
+
+      int attempts = user.loginAttempts;
+
+      if (attempts == maxLoginAttempts) {
+        await cloudUsers.doc(user.uid).update({
+          'isBlocked': true,
+          'blockUntil': Timestamp.fromDate(
+              DateTime.now().add(Duration(seconds: blockDuration))),
+        });
+        throw ('Trop de tentatives échouées. Votre compte a été bloqué.');
+      } else {
+        await cloudUsers.doc(user.uid).update({
+          'loginAttempts': attempts + 1,
+        });
+      }
+
+      UserCredential credential = await auth.signInWithEmailAndPassword(
+          email: email, password: password);
+
+      await cloudUsers.doc(user.uid).update({
+        'loginAttempts': 0,
+        'isBlocked': false,
+        'blockUntil': null,
+      });
+
+      String id = credential.user!.uid;
+      return UserService().getUser(id);
+    } catch (e) {
+      if (e is FirebaseAuthException) {
+        print('Erreur de connexion Firebase : ${e.message}');
+
+        return Future.error(e.toString());
+      } else if (e is Exception) {
+        print('Erreur: ${e.toString()}');
+
+        return Future.error(e.toString());
+      }
+
+      rethrow;
+    }
   }
 
-    void logout(BuildContext context) async {
+  void logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const MyHomePage(title: 'TodoNest',)),
+      MaterialPageRoute(
+          builder: (context) => const MyHomePage(
+                title: 'TodoNest',
+              )),
       (Route<dynamic> route) => false,
     );
   }

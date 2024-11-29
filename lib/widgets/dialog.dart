@@ -134,7 +134,7 @@ void showLoginDialog(BuildContext context) {
                 onPressed: () {
                   if (formKey.currentState?.validate() ?? false) {
                     AuthController()
-                        .connexion(email.text, password.text)
+                        .connection(email.text, password.text)
                         .then((value) {
                       Navigator.of(context).pop();
                       Navigator.push(
@@ -238,7 +238,7 @@ void showInscriptionDialog(BuildContext context) {
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     AuthController()
-                        .inscription(surname.text, email.text, password.text)
+                        .register(surname.text, email.text, password.text)
                         .then((value) {
                       Navigator.of(context).pop();
                       Navigator.push(
