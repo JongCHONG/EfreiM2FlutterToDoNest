@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
 
 class Notifications {
-  static void show(BuildContext context, String message) {
+  static void show(BuildContext context, String message,
+      {bool isError = false, bool isInfo = false}) {
+    Color textColor;
+
+    if (isError) {
+      textColor = Colors.red;
+    } else if (isInfo) {
+      textColor = Colors.blue;
+    } else {
+      textColor = Colors.green;
+    }
+
     final snackBar = SnackBar(
       content: Text(
         message,
-        style: const TextStyle(color: Colors.green),
+        style: TextStyle(color: textColor),
       ),
       backgroundColor: Colors.white,
       behavior: SnackBarBehavior.floating,
