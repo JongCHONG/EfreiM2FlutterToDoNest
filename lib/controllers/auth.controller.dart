@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:todonest/main.dart';
 import 'package:todonest/services/user.service.dart';
 import 'dart:async';
+import 'package:todonest/notifications/notifications.dart';
+import 'package:intl/intl.dart';
 
 import '../models/my_user.dart';
 
@@ -15,7 +17,8 @@ class AuthController {
   final int maxLoginAttempts = 3;
   final int blockDuration = 5;
 
-  Future<MyUser> register(String surname, String email, String password) async {
+  Future<MyUser> register(String surname, String email, String password,
+      BuildContext context) async {
     UserCredential credential = await auth.createUserWithEmailAndPassword(
         email: email, password: password);
     String id = credential.user!.uid;
@@ -29,10 +32,14 @@ class AuthController {
       'blockUntil': null,
     };
     UserService().addUser(id, datas);
+
+    Notifications.show(context, 'Inscription réussie !');
+
     return UserService().getUser(id);
   }
 
-  Future<MyUser> connection(String email, String password) async {
+  Future<MyUser> connection(
+      String email, String password, BuildContext context) async {
     try {
       QuerySnapshot querySnapshot =
           await cloudUsers.where('email', isEqualTo: email).get();
@@ -46,25 +53,46 @@ class AuthController {
 
         if (user.blockUntil != null &&
             DateTime.now().isBefore(user.blockUntil!)) {
-          throw ('Votre compte est bloqué jusqu\'à ${user.blockUntil}');
+          final dateFormat = DateFormat('dd/MM/yyyy, HH:mm:ss');
+          final formattedDate = dateFormat.format(user.blockUntil!);
+          Notifications.show(
+              context, 'Votre compte est bloqué jusqu\'au ${formattedDate}',
+              isError: true);
+          throw ('Votre compte est bloqué jusqu\'au ${formattedDate}');
         } else {
           await cloudUsers.doc(user.uid).update({
             'isBlocked': false,
             'blockUntil': null,
             'loginAttempts': 0,
           });
+
+          userDoc = await cloudUsers.doc(user.uid).get();
+          user = MyUser(userDoc);
+
+          Notifications.show(context,
+              'Le blocage de votre compte a expiré. Vous pouvez vous reconnecter.',
+              isInfo: true);
         }
     
 
       int attempts = user.loginAttempts;
 
-      if (attempts == maxLoginAttempts) {
+      if (attempts >= maxLoginAttempts) {
+        DateTime blockUntil =
+            DateTime.now().add(Duration(seconds: blockDuration));
+
         await cloudUsers.doc(user.uid).update({
           'isBlocked': true,
-          'blockUntil': Timestamp.fromDate(
-              DateTime.now().add(Duration(seconds: blockDuration))),
+          'blockUntil': Timestamp.fromDate(blockUntil),
         });
-        throw ('Trop de tentatives échouées. Votre compte a été bloqué.');
+
+        final dateFormat = DateFormat('dd/MM/yyyy, HH:mm:ss');
+        final formattedDate = dateFormat.format(blockUntil);
+
+        Notifications.show(
+            context, 'Votre compte est bloqué jusqu\'au ${formattedDate}',
+            isError: true);
+        throw ('Votre compte est bloqué jusqu\'au ${formattedDate}');
       } else {
         await cloudUsers.doc(user.uid).update({
           'loginAttempts': attempts + 1,
@@ -73,6 +101,8 @@ class AuthController {
 
       UserCredential credential = await auth.signInWithEmailAndPassword(
           email: email, password: password);
+
+      Notifications.show(context, 'Connexion réussie !');
 
       await cloudUsers.doc(user.uid).update({
         'loginAttempts': 0,
@@ -106,5 +136,7 @@ class AuthController {
               )),
       (Route<dynamic> route) => false,
     );
+
+    Notifications.show(context, 'Déconnexion réussi !');
   }
 }
