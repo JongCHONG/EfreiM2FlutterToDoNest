@@ -18,12 +18,12 @@ Les utilisateurs non inscrits ou non connectés sont redirigés s'ils tentent d'
 Après 3 tentatives de connexion infructueuses, l'utilisateur est temporairement bloqué.
 - Architecture
 Le projet suit une architecture modulaire et maintenable en respectant les principes S.O.L.I.D :
+- Séparation des responsabilités : Séparation des widgets, des services Firebase, et de la logique métier.
 
-Séparation des responsabilités : Séparation des widgets, des services Firebase, et de la logique métier.
-Gestion des états : Utilisation de Provider pour une gestion centralisée des états.
-Prérequis
+### Prérequis
 Flutter : Assurez-vous que Flutter est installé et configuré correctement.
 
+### Exécution du projet :
 flutter run
 
 ### Auteurs :
